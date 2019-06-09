@@ -21,7 +21,10 @@ func main() {
 	c := greetpb.NewGreetServiceClient(con)
 
 	// fmt.Printf("Client created %+f \n", c)
+	DoUnary(c)
+}
 
+func DoUnary(c greetpb.GreetServiceClient) {
 	req := &greetpb.GreetRequest{
 		Greeting: &greetpb.Greeting{
 			FirstName: "Deleema",
@@ -29,14 +32,11 @@ func main() {
 		},
 	}
 
-	DoUnary(req, c)
-}
-
-func DoUnary(req *greetpb.GreetRequest, c greetpb.GreetServiceClient) {
 	res, err := c.Greet(context.Background(), req)
 
 	if err != nil {
 		panic(err)
 	}
+
 	fmt.Printf("\n\n Response is  %v \n\n", res)
 }
