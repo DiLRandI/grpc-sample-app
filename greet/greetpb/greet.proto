@@ -14,4 +14,7 @@ message GreetRequest{
 message GreetResponse{
     string result =1;
 }
-service GreetService{}
+service GreetService{
+    //Unary
+    rpc Greet(GreetRequest) returns (GreetResponse) {}; 
+}
