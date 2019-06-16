@@ -9,6 +9,10 @@ message CalcRequest{
     int32 no2 = 2;
 }
 
+message CalcPrimeRequest{
+    int32 number = 1;
+}
+
 message CalcResponse{
     int32 result = 1;
 }
@@ -16,4 +20,5 @@ message CalcResponse{
 service CalculatorService {
     //Unary
     rpc Sum(CalcRequest) returns (CalcResponse){};
+    rpc Prime(CalcPrimeRequest) returns (stream CalcResponse){};
 }

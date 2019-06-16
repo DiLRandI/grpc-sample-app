@@ -21,6 +21,31 @@ func (*server) Sum(ctx context.Context, r *calculatorpb.CalcRequest) (*calculato
 	}
 	return res, nil
 }
+
+func (*server) Prime(r *calculatorpb.CalcPrimeRequest, s calculatorpb.CalculatorService_PrimeServer) error {
+	num := r.Number
+	var dev int32 = 2
+
+	for num > 1 {
+		if num%dev == 0 {
+			s.Send(&calculatorpb.CalcResponse{
+				Result: dev,
+			})
+			num = num / dev
+		} else {
+			dev++
+		}
+
+		fmt.Println("=======================================================================")
+		fmt.Println(num, dev)
+		fmt.Println("=======================================================================")
+
+		// time.Sleep(50 * time.Millisecond)
+	}
+
+	return nil
+}
+
 func main() {
 	fmt.Println("Calculator server starting")
 	lis, err := net.Listen("tcp", "0.0.0.0:50051")
