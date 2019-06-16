@@ -12,6 +12,9 @@ import (
 type server struct{}
 
 func (*server) Sum(ctx context.Context, r *calculatorpb.CalcRequest) (*calculatorpb.CalcResponse, error) {
+	fmt.Println("=======================================================================")
+	fmt.Println(r, ctx)
+	fmt.Println("=======================================================================")
 	res := &calculatorpb.CalcResponse{
 		Result: r.No1 + r.No2,
 	}
