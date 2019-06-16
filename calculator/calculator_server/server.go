@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net"
 
 	"github.com/dilrandi/grpc-sample-app/calculator/calculatorpb"
@@ -25,7 +26,7 @@ func main() {
 	lis, err := net.Listen("tcp", "0.0.0.0:50051")
 
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error occurred : %s \n", err)
 	}
 
 	s := grpc.NewServer()
