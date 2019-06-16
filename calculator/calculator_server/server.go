@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net"
 
@@ -42,6 +43,35 @@ func (*server) Prime(r *calculatorpb.CalcPrimeRequest, s calculatorpb.Calculator
 
 		// time.Sleep(50 * time.Millisecond)
 	}
+
+	return nil
+}
+
+func (*server) ComputeAverage(s calculatorpb.CalculatorService_ComputeAverageServer) error {
+	fmt.Println("Computing average ")
+	var n int32
+	var tot int32
+
+	for {
+		m, err := s.Recv()
+
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			log.Fatalf(" Error while computing avg : %s \n", err.Error())
+		}
+
+		tot += m.Number
+		n++
+	}
+
+	fmt.Printf("Total : %v and Elements : %v \n", tot, n)
+	avg := float32(tot) / float32(n)
+	s.SendAndClose(&calculatorpb.ComputeAverageResponse{
+		Result: avg,
+	})
 
 	return nil
 }
