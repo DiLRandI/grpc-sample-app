@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/dilrandi/grpc-sample-app/calculator/calculatorpb"
 
@@ -15,7 +16,7 @@ func main() {
 	con, err := grpc.Dial("0.0.0.0:50051", grpc.WithInsecure())
 
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error occurred : %s\n", err.Error())
 	}
 
 	defer con.Close()
@@ -29,7 +30,7 @@ func main() {
 	res, err := c.Sum(context.Background(), r)
 
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error occurred : %s\n", err.Error())
 	}
 
 	fmt.Println("=======================================================================")

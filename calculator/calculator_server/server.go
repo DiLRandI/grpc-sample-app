@@ -26,7 +26,7 @@ func main() {
 	lis, err := net.Listen("tcp", "0.0.0.0:50051")
 
 	if err != nil {
-		log.Fatalf("Error occurred : %s \n", err)
+		log.Fatalf("Error occurred : %s \n", err.Error())
 	}
 
 	s := grpc.NewServer()
