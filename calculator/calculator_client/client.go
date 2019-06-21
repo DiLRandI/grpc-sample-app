@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"time"
 
 	"github.com/dilrandi/grpc-sample-app/calculator/calculatorpb"
 
@@ -26,7 +27,8 @@ func main() {
 
 	// doUnary(c)
 	// doServerStreaming(c)
-	doClientStreaming(c)
+	// doClientStreaming(c)
+	doBiStreaming(c)
 }
 func doClientStreaming(c calculatorpb.CalculatorServiceClient) {
 	s, err := c.ComputeAverage(context.Background())
@@ -117,4 +119,81 @@ func doServerStreaming(c calculatorpb.CalculatorServiceClient) {
 		fmt.Println(strmRes.Result)
 		fmt.Println("=======================================================================")
 	}
+}
+func doBiStreaming(c calculatorpb.CalculatorServiceClient) {
+	clsChan := make(chan struct{})
+	strm, err := c.FindMax(context.Background())
+
+	if err != nil {
+		log.Fatalf("Error receiving data from server  %+v \n ", err)
+		return
+	}
+
+	req := []*calculatorpb.FindMaxRequest{
+		&calculatorpb.FindMaxRequest{
+			Number: 1,
+		},
+		&calculatorpb.FindMaxRequest{
+			Number: 2,
+		},
+		&calculatorpb.FindMaxRequest{
+			Number: 4,
+		},
+		&calculatorpb.FindMaxRequest{
+			Number: 3,
+		},
+		&calculatorpb.FindMaxRequest{
+			Number: 5,
+		},
+		&calculatorpb.FindMaxRequest{
+			Number: 8,
+		},
+		&calculatorpb.FindMaxRequest{
+			Number: 2,
+		},
+		&calculatorpb.FindMaxRequest{
+			Number: 1,
+		},
+		&calculatorpb.FindMaxRequest{
+			Number: 7,
+		},
+		&calculatorpb.FindMaxRequest{
+			Number: 15,
+		},
+		&calculatorpb.FindMaxRequest{
+			Number: 12,
+		},
+		&calculatorpb.FindMaxRequest{
+			Number: 10,
+		},
+	}
+	go func() {
+		for _, r := range req {
+			if err := strm.Send(r); err != nil {
+				log.Fatalf("Error sending data to server : %+v", err)
+			}
+			time.Sleep(time.Second * 1)
+		}
+		strm.CloseSend()
+	}()
+
+	go func() {
+		for {
+			res, err := strm.Recv()
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				log.Fatalf("Error when receiving data from server : %+v", err)
+				break
+			}
+
+			fmt.Println("=======================================================================")
+			fmt.Println(res.Result)
+			fmt.Println("=======================================================================")
+		}
+		close(clsChan)
+	}()
+
+	<-clsChan
 }
