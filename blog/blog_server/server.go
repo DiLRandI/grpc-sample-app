@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/dilrandi/grpc-sample-app/blog/blogpb"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
@@ -17,11 +18,15 @@ import (
 
 type blogServer struct {
 }
-type Person struct {
-	Fname string
-	Lname string
-	Age   int
+
+type blogItem struct {
+	ID       primitive.ObjectID `bson:"_id,omitempty"`
+	Title    string             `bson:"title"`
+	Content  string             `bson:"content"`
+	AuthorID string             `bson:"author_id"`
 }
+
+var collection *mongo.Collection
 
 func main() {
 	// if we crash, will get files name and line number
@@ -33,27 +38,16 @@ func main() {
 		log.Fatalf("Error while creating mongo client : %v", err)
 	}
 
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cf := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cf()
+
 	err = client.Connect(ctx)
 
 	if err != nil {
 		log.Fatalf("Error while connecting to mongo server : %v", err)
 	}
 
-	res, err := client.Database("deleema").Collection("HelloWorld").InsertOne(ctx,
-		&Person{
-			Age:   28,
-			Fname: "Deleema",
-			Lname: "Fernando",
-		})
-
-	if err != nil {
-		log.Fatalf("Errorrr : %v", err)
-	}
-
-	fmt.Println("=======================================================================")
-	fmt.Printf("\n\n %+v \n\n", res)
-	fmt.Println("=======================================================================")
+	collection = client.Database("myBlogsDb").Collection("blogs")
 
 	lis, err := net.Listen("tcp", "0.0.0.0:5051")
 	if err != nil {
@@ -80,5 +74,8 @@ func main() {
 	svr.Stop()
 	fmt.Println("Closing the listener")
 	lis.Close()
+	fmt.Println("Disconnecting from mongo server")
+	client.Disconnect(ctx)
 	fmt.Println("Closing the server application")
+
 }
