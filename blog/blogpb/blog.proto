@@ -9,3 +9,7 @@ message Blog{
     string title = 3;
     string content = 4;
 }
+
+service BlogService {
+    
+}
